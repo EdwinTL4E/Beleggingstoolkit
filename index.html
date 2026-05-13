@@ -1,0 +1,683 @@
+<!-- Beleggingstoolkit v1.0 · mei 2026 · TL4E -->
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beleggingstoolkit</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c12;
+    --surface: #0e1420;
+    --surface2: #141c2e;
+    --border: #1e2a42;
+    --border-bright: #2a3a5c;
+    --accent: #00d4ff;
+    --accent2: #00ff9d;
+    --accent3: #ff6b35;
+    --text: #e8eef8;
+    --text-muted: #6b7a99;
+    --text-dim: #3a4a6a;
+    --gold: #ffd166;
+    --mono: 'Space Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  .header {
+    margin-bottom: 56px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 4px;
+    padding: 6px 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .header-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s infinite;
+  }
+
+  h1 {
+    font-family: var(--sans);
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    margin-bottom: 16px;
+  }
+
+  h1 .accent { color: var(--accent); }
+
+  .subtitle {
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    max-width: 100%;
+    font-weight: 400;
+  }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    gap: 1px;
+    margin: 32px 0;
+    background: var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    animation: fadeDown 0.6s 0.1s ease both;
+  }
+
+  .stat {
+    flex: 1;
+    background: var(--surface);
+    padding: 16px 20px;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    display: block;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* Use cases */
+  .use-cases {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .use-cases-title {
+    font-size: 19px;
+    font-family: var(--sans);
+    font-weight: 400;
+    color: var(--accent2);
+    letter-spacing: 0.5px;
+    margin-bottom: 14px;
+  }
+
+  .use-case {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: var(--text-muted);
+  }
+
+  .use-case:last-child { margin-bottom: 0; }
+
+  .use-case-label {
+    color: var(--text);
+    font-weight: 600;
+    white-space: nowrap;
+    min-width: 200px;
+  }
+
+  .use-case-flow {
+    font-family: var(--mono);
+    font-size: 15px;
+    color: var(--accent);
+  }
+
+  /* Section title */
+  .section-title {
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--text-dim);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    animation: fadeDown 0.6s 0.3s ease both;
+  }
+
+  /* Prompt grid */
+  .prompt-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+    gap: 16px;
+  }
+
+  .prompt-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .prompt-card:hover {
+    border-color: var(--border-bright);
+    transform: translateY(-2px);
+  }
+
+  .prompt-card:nth-child(1) { animation-delay: 0.1s; }
+  .prompt-card:nth-child(2) { animation-delay: 0.15s; }
+  .prompt-card:nth-child(3) { animation-delay: 0.2s; }
+  .prompt-card:nth-child(4) { animation-delay: 0.25s; }
+  .prompt-card:nth-child(5) { animation-delay: 0.3s; }
+  .prompt-card:nth-child(6) { animation-delay: 0.35s; }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .card-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .card-icon {
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  .card-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+
+  .card-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 3px;
+    font-family: var(--mono);
+  }
+
+  .card-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 3px 8px;
+  }
+
+  .card-body {
+    padding: 16px 20px;
+  }
+
+  .prompt-text {
+    font-size: 12px;
+    font-family: var(--mono);
+    color: var(--text-muted);
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 180px;
+    overflow: hidden;
+    position: relative;
+    transition: max-height 0.4s ease;
+  }
+
+  .prompt-text.expanded {
+    max-height: 1000px;
+  }
+
+  .prompt-text:not(.expanded)::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 48px;
+    background: linear-gradient(transparent, var(--surface));
+  }
+
+  .card-footer {
+    display: flex;
+    gap: 8px;
+    padding: 0 20px 16px;
+  }
+
+  .btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: var(--mono);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+
+  .btn-copy {
+    background: rgba(0,212,255,0.1);
+    color: var(--accent);
+    border: 1px solid rgba(0,212,255,0.25);
+    flex: 1;
+  }
+
+  .btn-copy:hover {
+    background: rgba(0,212,255,0.18);
+    border-color: var(--accent);
+  }
+
+  .btn-copy.copied {
+    background: rgba(0,255,157,0.1);
+    color: var(--accent2);
+    border-color: rgba(0,255,157,0.3);
+  }
+
+  .btn-expand {
+    background: var(--surface2);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+  }
+
+  .btn-expand:hover {
+    color: var(--text);
+    border-color: var(--border-bright);
+  }
+
+  /* Color accents per card */
+  .prompt-card:nth-child(1) .card-header { border-top: 2px solid #00d4ff; }
+  .prompt-card:nth-child(2) .card-header { border-top: 2px solid #00ff9d; }
+  .prompt-card:nth-child(3) .card-header { border-top: 2px solid #ffd166; }
+  .prompt-card:nth-child(4) .card-header { border-top: 2px solid #ff6b35; }
+  .prompt-card:nth-child(5) .card-header { border-top: 2px solid #c77dff; }
+  .prompt-card:nth-child(6) .card-header { border-top: 2px solid #ff4d6d; }
+
+  /* Disclaimer */
+  .disclaimer {
+    margin-top: 48px;
+    padding: 16px 20px;
+    background: rgba(255,107,53,0.06);
+    border: 1px solid rgba(255,107,53,0.2);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    animation: fadeUp 0.5s 0.5s ease both;
+  }
+
+  .disclaimer strong { color: var(--accent3); }
+
+  /* Animations */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  @media (max-width: 600px) {
+    .prompt-grid { grid-template-columns: 1fr; }
+    .use-case { flex-direction: column; gap: 4px; }
+    .use-case-label { min-width: unset; }
+    .use-case-flow { font-size: 13px; word-break: break-word; }
+    .stats-bar { flex-wrap: wrap; }
+  }
+
+  .footer {
+    margin-top: 32px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+  }
+
+  .subtitle a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(0,212,255,0.3);
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .subtitle a:hover {
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .platforms {
+    margin-top: 10px;
+  }
+
+  /* Category labels */
+  .cat-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin: 36px 0 12px;
+    padding-left: 2px;
+    animation: fadeDown 0.5s ease both;
+  }
+
+  .cat-label:first-of-type {
+    margin-top: 0;
+  }
+
+  /* Check icon animation */
+  .check-icon {
+    display: inline-block;
+    animation: checkPop 0.3s ease;
+  }
+
+  @keyframes checkPop {
+    0% { transform: scale(0); }
+    60% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="header">
+    <h1>🧭 <span class="accent">Beleggings</span>toolkit</h1>
+    <p class="subtitle">6 AI-prompts voor de complete beleggingscyclus. Gebruik de prompts in volgorde voor een gestructureerde aanpak: start met macro-context, selecteer op fundamentele kwaliteit, bepaal timing technisch, toets op portefeuillefit en volg events op. De beste beleggers gebruiken AI niet als vervanger van hun oordeel, maar als instrument om sneller en scherper te analyseren.</p>
+    <p class="subtitle platforms">Na het kopiëren van de prompt kun je deze direct gebruiken in AI-platformen zoals <a href="https://chatgpt.com" target="_blank">ChatGPT</a>, <a href="https://claude.ai" target="_blank">Claude</a>, <a href="https://gemini.google.com" target="_blank">Google Gemini</a>, <a href="https://copilot.microsoft.com" target="_blank">Microsoft Copilot</a> en vergelijkbare systemen.</p>
+    <div class="use-cases">
+      <div class="use-cases-title">Voorbeelden van gebruik</div>
+      <div class="use-case">
+        <span class="use-case-label">Nieuw aandeel beoordelen</span>
+        <span class="use-case-flow">Macro → Fundamenteel → Technisch → Portefeuille Check</span>
+      </div>
+      <div class="use-case">
+        <span class="use-case-label">Bestaande positie bewaken</span>
+        <span class="use-case-flow">Events & Nieuws → Technisch → Portefeuille Check</span>
+      </div>
+      <div class="use-case">
+        <span class="use-case-label">ETF-portefeuille opbouwen</span>
+        <span class="use-case-flow">Macro → Fundamentele ETF → Portefeuille Check</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="section-title">// Prompts — klik kopieer om te gebruiken</div>
+
+  <div class="prompt-grid" id="grid"></div>
+
+  <div class="disclaimer">
+    <strong>⚠️ Disclaimer</strong> — Deze toolkit is uitsluitend bedoeld voor educatieve doeleinden en persoonlijke oriëntatie. Geen van de prompts of uitkomsten vormt professioneel beleggingsadvies. Raadpleeg een erkend financieel adviseur voor persoonlijk advies.
+  </div>
+
+  <div class="footer">v1.0 · mei 2026 · TL4E</div>
+
+</div>
+
+<script>
+const prompts = [
+  {
+    icon: "📊",
+    title: "Fundamentele Aandelen Analyse",
+    subtitle: "Wat is het aandeel waard?",
+    text: `Begin je antwoord altijd met de titel "📊 Fundamentele Aandelen Analyse".
+
+Genereer 6 bekende beursgenoteerde bedrijven — één per sector (tech, energie, industrie, consument, financieel, gezondheidszorg) uit minimaal 3 verschillende regio's. Toon als genummerde keuzelijst en vraag: "Welk bedrijf wil je analyseren, of noem een eigen keuze?"
+
+Wacht altijd op de keuze van de gebruiker voordat je de analyse uitvoert. Voer geen analyse uit zonder expliciete invoer.
+
+Analyseer [BEDRIJF] — actueel en fundamenteel:
+
+Marktdata: Actuele koers + rendement over 1 week, 1 maand en 1 jaar. Vermeld peildatum.
+
+Score (1–10): Beoordeel winstgevendheid, omzetgroei, vrije kasstroom, schuldpositie, marges, waardering, risico's en vooruitzichten. Vergelijk met historische gemiddelden en relevante sectorgenoten. Vermeld gebruikte ratio's en aannames.
+
+Check: Verifieer feiten, rekencorrectheid en consistentie vóór beantwoording. Onderscheid feiten van interpretaties. Gebruik uitsluitend Bloomberg, Reuters, officiële Investor Relations of vergelijkbare tier-1 financiële bronnen.
+
+Conclusie: Bullish, neutraal of bearish — met expliciete drempelwaarden voor koop, houd of verkoop.
+
+Maximaal 250 woorden. Geen tabellen, iconen of interactieve elementen.`
+  },
+  {
+    icon: "📈",
+    title: "Technische Aandelen Analyse",
+    subtitle: "Wanneer handelen?",
+    text: `Begin je antwoord altijd met de titel "📈 Technische Aandelen Analyse".
+
+Genereer 6 bekende beursgenoteerde bedrijven — één per sector (tech, energie, industrie, consument, financieel, gezondheidszorg) uit minimaal 3 verschillende regio's. Toon als genummerde keuzelijst en vraag: "Welk bedrijf wil je analyseren, of noem een eigen keuze?"
+
+Wacht altijd op de keuze van de gebruiker voordat je de analyse uitvoert. Voer geen analyse uit zonder expliciete invoer.
+
+Analyseer [BEDRIJF] — technisch en actueel:
+
+Koersbeeld: Actuele koers, trend (kort/middellang/lang), en significante support- en weerstandsniveaus. Vermeld peildatum.
+
+Indicatoren: Beoordeel RSI, MACD, moving averages (50/200-daags) en volume. Signaleer divergenties of bevestigingen.
+
+Patroon: Identificeer actief koerspatroon (bijv. hoofd-schouders, vlag, driehoek) en de verwachte doorbraakrichting.
+
+Check: Verifieer consistentie tussen indicatoren onderling en met het koerspatroon. Gebruik uitsluitend TradingView, Bloomberg of vergelijkbare tier-1 bronnen.
+
+Conclusie: Bullish, neutraal of bearish — met concreet koersdoel, stop-loss niveau en aanbevolen tijdshorizon.
+
+Maximaal 250 woorden. Geen tabellen, iconen of interactieve elementen.`
+  },
+  {
+    icon: "📊",
+    title: "Fundamentele ETF Analyse",
+    subtitle: "Kwaliteit, kosten en spreiding",
+    text: `Begin je antwoord altijd met de titel "📊 Fundamentele ETF Analyse".
+
+Genereer 6 bekende ETF's — gespreid over indices, sectoren en regio's (bijv. wereldwijd, Europa, VS, opkomende markten, sector, obligaties). Toon als genummerde keuzelijst en vraag: "Welke ETF wil je analyseren, of noem een eigen keuze?"
+
+Wacht altijd op de keuze van de gebruiker voordat je de analyse uitvoert. Voer geen analyse uit zonder expliciete invoer.
+
+Analyseer [ETF] — actueel en fundamenteel:
+
+Marktdata: Actuele koers + rendement over 1 week, 1 maand en 1 jaar. Vermeld peildatum.
+
+Score (1–10): Beoordeel TER, omvang, liquiditeit, tracking error, spreiding (sector/regio/top-10 holdings), replicatiemethode (fysiek/synthetisch) en dividendbeleid. Vergelijk met vergelijkbare ETF's. Vermeld gebruikte ratio's en aannames.
+
+Check: Verifieer feiten, rekencorrectheid en consistentie vóór beantwoording. Onderscheid feiten van interpretaties. Gebruik uitsluitend Bloomberg, Morningstar, officiële ETF-prospectussen of vergelijkbare tier-1 bronnen.
+
+Conclusie: Bullish, neutraal of bearish — met expliciete drempelwaarden voor koop, houd of verkoop.
+
+Maximaal 250 woorden. Geen tabellen, iconen of interactieve elementen.`
+  },
+  {
+    icon: "📰",
+    title: "Macro & Sentiment Analyse",
+    subtitle: "Marktklimaat en context",
+    text: `Begin je antwoord altijd met de titel "📰 Macro & Sentiment Analyse".
+
+Genereer 6 actuele macro-thema's of marktontwikkelingen als inspiratie. Toon als genummerde keuzelijst en vraag: "Welk thema of welke regio wil je analyseren, of noem een eigen keuze?"
+
+Wacht altijd op de keuze van de gebruiker voordat je de analyse uitvoert. Voer geen analyse uit zonder expliciete invoer.
+
+Analyseer [THEMA/REGIO] — actueel en macrofundamenteel:
+
+Macro-data: Actuele stand van rente, inflatie, bbp-groei en werkloosheid. Vermeld peildatum en bronnen.
+
+Sentiment: Beoordeel VIX, fear & greed index, institutioneel sentiment en positionering. Signaleer extremen of verschuivingen.
+
+Impact: Vertaal macro- en sentimentsignalen naar verwachte impact op aandelen, ETF's en sectoren.
+
+Check: Verifieer feiten en consistentie vóór beantwoording. Onderscheid feiten van interpretaties. Gebruik uitsluitend Bloomberg, Reuters, Fed/ECB-publicaties of vergelijkbare tier-1 bronnen.
+
+Conclusie: Positief, neutraal of negatief marktklimaat — met concrete implicaties voor portefeuillepositionering.
+
+Maximaal 250 woorden. Geen tabellen, iconen of interactieve elementen.`
+  },
+  {
+    icon: "📋",
+    title: "Portefeuille Check",
+    subtitle: "Spreiding, risico en balans",
+    text: `Begin je antwoord altijd met de titel "📋 Portefeuille Check".
+
+Vraag de gebruiker naar:
+1. Huidige posities (bedrijf/ETF + weging in %)
+2. Beleggingshorizon (kort / middellang / lang)
+3. Risicoprofiel (defensief / neutraal / offensief)
+
+Wacht altijd op de invoer van de gebruiker voordat je de analyse uitvoert. Voer geen analyse uit zonder expliciete invoer.
+
+Analyseer de ingevoerde portefeuille:
+
+Spreiding: Beoordeel diversificatie over sectoren, regio's en asset classes. Signaleer concentratierisico's.
+
+Balans: Toets verhouding aandelen/ETF's/obligaties/cash aan het opgegeven risicoprofiel en horizon.
+
+Risico: Identificeer kwetsbaarheden — kleverigheid aan één sector, regio of thema. Vergelijk met algemeen geaccepteerde spreidingsnormen.
+
+Check: Onderscheid feiten van interpretaties. Gebruik uitsluitend ingevoerde data en geaccepteerde portefeuilletheorie (bijv. Modern Portfolio Theory) als referentiekader.
+
+Conclusie: Goed gebalanceerd, aanpassing aanbevolen of herbalancering noodzakelijk — met concrete actieaanbevelingen per positie.
+
+Maximaal 250 woorden. Geen tabellen, iconen of interactieve elementen.`
+  },
+  {
+    icon: "📅",
+    title: "Events & Nieuws",
+    subtitle: "Earnings, dividend en sectortrends",
+    text: `Begin je antwoord altijd met de titel "📅 Events & Nieuws".
+
+Genereer 6 actuele beursrelevante thema's, sectoren of bedrijven met aankomende events als inspiratie. Toon als genummerde keuzelijst en vraag: "Welk bedrijf, sector of event wil je volgen, of noem een eigen keuze?"
+
+Wacht altijd op de keuze van de gebruiker voordat je de analyse uitvoert. Voer geen analyse uit zonder expliciete invoer.
+
+Analyseer [BEDRIJF/SECTOR/EVENT] — actueel en eventgedreven:
+
+Events: Vermeld aankomende earnings, ex-dividenddatum, dividendbedrag en relevante corporate events (splitsingen, overnames, bijstellingen). Vermeld peildatum.
+
+Nieuws: Signaleer recente koersrelevante ontwikkelingen — sectortrends, regelgeving, macro-triggers of analistenwijzigingen.
+
+Impact: Vertaal events en nieuws naar verwachte koersimpact op korte termijn. Onderscheid eenmalige van structurele effecten.
+
+Check: Verifieer feiten en consistentie vóór beantwoording. Onderscheid feiten van interpretaties. Gebruik uitsluitend Bloomberg, Reuters, officiële bedrijfspublicaties of vergelijkbare tier-1 bronnen.
+
+Conclusie: Positieve, neutrale of negatieve eventimpact — met concrete implicaties voor bestaande of nieuwe posities.
+
+Maximaal 250 woorden. Geen tabellen, iconen of interactieve elementen.`
+  }
+];
+
+const grid = document.getElementById('grid');
+
+prompts.forEach((p, i) => {
+  const card = document.createElement('div');
+  card.className = 'prompt-card';
+  card.innerHTML = `
+    <div class="card-header">
+      <div class="card-title-wrap">
+        <span class="card-icon">${p.icon}</span>
+        <div>
+          <div class="card-title">${p.title}</div>
+          <div class="card-subtitle">${p.subtitle}</div>
+        </div>
+      </div>
+      <span class="card-num">0${i+1}</span>
+    </div>
+    <div class="card-body">
+      <div class="prompt-text" id="text-${i}">${p.text}</div>
+    </div>
+    <div class="card-footer">
+      <button class="btn btn-copy" id="copy-${i}" onclick="copyPrompt(${i})">
+        <span>⎘</span> Kopieer prompt
+      </button>
+      <button class="btn btn-expand" onclick="toggleExpand(${i})">
+        <span id="expand-icon-${i}">↓</span>
+      </button>
+    </div>
+  `;
+  grid.appendChild(card);
+});
+
+function copyPrompt(i) {
+  navigator.clipboard.writeText(prompts[i].text).then(() => {
+    const btn = document.getElementById(`copy-${i}`);
+    btn.classList.add('copied');
+    btn.innerHTML = '<span class="check-icon">✓</span> Gekopieerd!';
+    btn.style.transform = 'scale(1.03)';
+    setTimeout(() => { btn.style.transform = 'scale(1)'; }, 150);
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = '<span>⎘</span> Kopieer prompt';
+    }, 1500);
+  });
+}
+
+function toggleExpand(i) {
+  const text = document.getElementById(`text-${i}`);
+  const icon = document.getElementById(`expand-icon-${i}`);
+  text.classList.toggle('expanded');
+  icon.textContent = text.classList.contains('expanded') ? '↑' : '↓';
+}
+</script>
+</body>
+</html>
